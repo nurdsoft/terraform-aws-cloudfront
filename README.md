@@ -1,4 +1,4 @@
-# terraform-aws-modules-cloudfront
+# terraform-aws-cloudfront
 
 A project that provides an AWS (Amazon Web Services) CloudFront Terraform module.
 
@@ -6,13 +6,6 @@ A project that provides an AWS (Amazon Web Services) CloudFront Terraform module
 
 `Simple CDN with S3 Bucket`:
 ```hcl
-terraform {
-  backend "s3" {
-    bucket = "aws-shared-terraform-state"
-    key    = "aws/use1/modules/cloudfront/simple-cdn-with-s3/terraform.tfstate"
-    region = "us-east-1"
-  }
-}
 
 module "simple-cdn-with-s3" {
   source = "../../"
@@ -30,13 +23,6 @@ module "simple-cdn-with-s3" {
 `Simple CDN with Custom S3 Bucket Policy`:
 
 ```hcl
-terraform {
-  backend "s3" {
-    bucket = "aws-shared-terraform-state"
-    key    = "aws/use1/modules/cloudfront/simple-cdn-with-custom-s3-policy/terraform.tfstate"
-    region = "us-east-1"
-  }
-}
 
 locals {
   bucket_name = "myapp.nurdsoft.co"
@@ -73,14 +59,14 @@ The module assumes the following:
 
 - A basic understanding of [Git](https://git-scm.com/).
 - Git version `>= 2.33.0`.
-- An existing AWS IAM user or role with access to create/update/delete resources defined in [main.tf](https://github.com/nurdsoft/terraform-aws-modules-cloudfront/blob/main/main.tf).
+- An existing AWS IAM user or role with access to create/update/delete resources defined in [main.tf](https://github.com/nurdsoft/terraform-aws-cloudfront/blob/main/main.tf).
 - An existing AWS Route53 Zone.
   - **Important Note:** This module relies on an existing Route 53 Hosted Zone matching for certificate validation. It will **not** create a new zone if one is not found; the lookup will simply fail.
 - A basic understanding of [Terraform](https://www.terraform.io/).
 - Terraform version `>= 1.0.2`.
 - (Optional - for local testing) A basic understanding of [Make](https://www.gnu.org/software/make/manual/make.html#Introduction).
   - Make version `>= GNU Make 3.81`.
-  - **Important Note**: This project includes a [Makefile](https://github.com/nurdsoft/terraform-aws-modules-cloudfront/blob/main/Makefile) to speed up local development in Terraform. The `make` targets act as a wrapper around Terraform commands. As such, `make` has only been tested/verified on **Linux/Mac OS**. Though, it is possible to [install make using Chocolatey](https://community.chocolatey.org/packages/make), we **do not** guarantee this approach as it has not been tested/verified. You may use the commands in the [Makefile](https://github.com/nurdsoft/terraform-aws-modules-cloudfront/blob/main/Makefile) as a guide to run each Terraform command locally on Windows.
+  - **Important Note**: This project includes a [Makefile](https://github.com/nurdsoft/terraform-aws-cloudfront/blob/main/Makefile) to speed up local development in Terraform. The `make` targets act as a wrapper around Terraform commands. As such, `make` has only been tested/verified on **Linux/Mac OS**. Though, it is possible to [install make using Chocolatey](https://community.chocolatey.org/packages/make), we **do not** guarantee this approach as it has not been tested/verified. You may use the commands in the [Makefile](https://github.com/nurdsoft/terraform-aws-cloudfront/blob/main/Makefile) as a guide to run each Terraform command locally on Windows.
 
 ## Contributions
 
@@ -89,10 +75,10 @@ Contributions are always welcome. As such, this project uses the `main` branch a
 **Step 1**. Clone this project.
 ```sh
 # Using Git
-$ git clone git@github.com:nurdsoft/terraform-aws-modules-cloudfront.git
+$ git clone git@github.com:nurdsoft/terraform-aws-cloudfront.git
 
 # Using HTTPS
-$ git clone https://github.com/nurdsoft/terraform-aws-modules-cloudfront.git
+$ git clone https://github.com/nurdsoft/terraform-aws-cloudfront.git
 ```
 
 **Step 2**. Checkout a feature branch: `git checkout -b feature/abc`.
@@ -120,7 +106,7 @@ $ git push --set-upstream origin feature/abc
 
 ## Test
 
-**Important Note**: This project includes a [Makefile](https://github.com/nurdsoft/terraform-aws-modules-cloudfront/blob/main/Makefile) to speed up local development in Terraform. The `make` targets act as a wrapper around Terraform commands. As such, `make` has only been tested/verified on **Linux/Mac OS**. Though, it is possible to [install make using Chocolatey](https://community.chocolatey.org/packages/make), we **do not** guarantee this approach as it has not been tested/verified. You may use the commands in the [Makefile](https://github.com/nurdsoft/terraform-aws-modules-cloudfront/blob/main/Makefile) as a guide to run each Terraform command locally on Windows.
+**Important Note**: This project includes a [Makefile](https://github.com/nurdsoft/terraform-aws-cloudfront/blob/main/Makefile) to speed up local development in Terraform. The `make` targets act as a wrapper around Terraform commands. As such, `make` has only been tested/verified on **Linux/Mac OS**. Though, it is possible to [install make using Chocolatey](https://community.chocolatey.org/packages/make), we **do not** guarantee this approach as it has not been tested/verified. You may use the commands in the [Makefile](https://github.com/nurdsoft/terraform-aws-cloudfront/blob/main/Makefile) as a guide to run each Terraform command locally on Windows.
 
 ```sh
 # Perform a dry-run on the infrastructure

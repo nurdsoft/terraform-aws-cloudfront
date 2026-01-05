@@ -1,11 +1,3 @@
-terraform {
-  backend "s3" {
-    bucket = "aws-shared-terraform-state"
-    key    = "aws/use1/modules/cloudfront/simple-cdn-with-custom-s3-policy/terraform.tfstate"
-    region = "us-east-1"
-  }
-}
-
 locals {
   bucket_name = "myapp.nurdsoft.co"
 }
@@ -28,7 +20,7 @@ module "simple-cdn-with-custom-s3-policy" {
   s3_custom_policy = data.aws_iam_policy_document.bucket_policy.json
   tags = {
     application_name = "myapp"
-    owner            = "Nurdsoft - devops@nurdsoft.co"
+    owner            = "hello@nurdsoft.co"
     cloud            = "aws"
     environment      = "dev"
     region           = "use1"
