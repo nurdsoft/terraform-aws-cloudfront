@@ -1,0 +1,11 @@
+# Mac OS files
+.DS_Store
+
+# Terraform cache
+.terraform/
+
+# Terraform lock
+.terraform.lock.hcl
+
+# Terraform plan
+*.tfplan
