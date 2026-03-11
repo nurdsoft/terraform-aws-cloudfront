@@ -451,3 +451,17 @@ variable "x_frame_option" {
   type        = string
   default     = "DENY"
 }
+
+#-------------------------------------------------------------------------------
+# SPA Routing Variables
+#-------------------------------------------------------------------------------
+variable "enable_spa_routing" {
+  description = <<DESC
+When true, attaches a CloudFront Function (viewer-request) that rewrites
+directory-style URLs to their index.html equivalents so that static sites
+built with frameworks like Gatsby or Next.js resolve correctly from S3.
+Example: /about/ -> /about/index.html
+DESC
+  type    = bool
+  default = false
+}

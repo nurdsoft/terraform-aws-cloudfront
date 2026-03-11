@@ -25,3 +25,8 @@ output "cicd_role_arn" {
   description = "The ARN of the generated role."
   value       = aws_iam_role.cloudfront.arn
 }
+
+output "spa_routing_function_arn" {
+  description = "The ARN of the SPA routing CloudFront Function. Empty string when enable_spa_routing is false."
+  value       = var.enable_spa_routing ? aws_cloudfront_function.spa_routing[0].arn : ""
+}
