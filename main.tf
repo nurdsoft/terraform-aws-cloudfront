@@ -66,6 +66,18 @@ resource "random_string" "external_id" {
 }
 
 #-------------------------------------------------------------------------------
+# CloudFront Function — SPA directory-index routing (optional)
+#-------------------------------------------------------------------------------
+resource "aws_cloudfront_function" "spa_routing" {
+  count   = var.enable_spa_routing ? 1 : 0
+  name    = "${local.resource_name}-spa-routing"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrite directory requests to index.html for SPA/static-site routing"
+  publish = true
+  code    = file("${path.module}/functions/spa-routing.js")
+}
+
+#-------------------------------------------------------------------------------
 # CloudFront Response Headers Policy for Security
 #-------------------------------------------------------------------------------
 resource "aws_cloudfront_response_headers_policy" "x_frame_options_policy" {
@@ -134,6 +146,14 @@ resource "aws_cloudfront_distribution" "cloudfront" {
 
       cookies {
         forward = var.fwd_value_cookie_fwd
+      }
+    }
+
+    dynamic "function_association" {
+      for_each = var.enable_spa_routing ? [1] : []
+      content {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.spa_routing[0].arn
       }
     }
   }
@@ -297,6 +317,24 @@ data "aws_iam_policy_document" "cloudfront_write" {
 
     actions = [
       "cloudfront:CreateInvalidation",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "CloudfrontFunctionManagement"
+    effect = "Allow"
+
+    actions = [
+      "cloudfront:CreateFunction",
+      "cloudfront:UpdateFunction",
+      "cloudfront:DeleteFunction",
+      "cloudfront:DescribeFunction",
+      "cloudfront:PublishFunction",
+      "cloudfront:GetFunction",
+      "cloudfront:UpdateDistribution",
+      "cloudfront:GetDistributionConfig",
     ]
 
     resources = ["*"]
