@@ -71,7 +71,7 @@ resource "random_string" "external_id" {
 resource "aws_cloudfront_function" "spa_routing" {
   count   = var.enable_spa_routing ? 1 : 0
   name    = "${local.resource_name}-spa-routing"
-  runtime = "cloudfront-js-2.0"
+  runtime = "cloudfront-js-1.0"
   comment = "Rewrite directory requests to index.html for SPA/static-site routing"
   publish = true
   code    = file("${path.module}/functions/spa-routing.js")
