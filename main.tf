@@ -451,7 +451,7 @@ data "aws_route53_zone" "this" {
 
 module "acm" {
   source  = "terraform-aws-modules/acm/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   providers = {
     aws = aws.east 
