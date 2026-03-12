@@ -461,7 +461,7 @@ module "acm" {
   zone_id     = data.aws_route53_zone.this.zone_id
 
   # Use the aliases calculated in locals as the SANs
-  subject_alternative_names = local.aliases
+  subject_alternative_names = [for alias in local.aliases : alias if alias != var.name]
 
   validation_method   = "DNS"
   wait_for_validation = true
