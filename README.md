@@ -4,51 +4,61 @@ A project that provides an AWS (Amazon Web Services) CloudFront Terraform module
 
 ## Usage
 
-`Simple CDN with S3 Bucket`:
+`Subdomain CDN` (recommended) — deploys to a subdomain of an existing Route 53 zone:
 ```hcl
-
-module "simple-cdn-with-s3" {
-  source = "../../"
-  # myapp is merely a placeholder. Replace it with actual name.
-  name = "myapp.nurdsoft.co"
+module "subdomain-cdn" {
+  source    = "github.com/nurdsoft/terraform-aws-cloudfront"
+  name      = "mswp"           # subdomain prefix
+  zone_name = "nurdsoft.co"    # existing Route 53 hosted zone
   tags = {
+    application_name = "mswp"
     cloud            = "aws"
     environment      = "dev"
     region           = "use1"
-    application_name = "myapp"
+  }
+}
+# -> FQDN: mswp.nurdsoft.co
+# -> Aliases: mswp.nurdsoft.co, www.mswp.nurdsoft.co
+```
+
+`Apex domain CDN` — when `name` matches the hosted zone (zone_name can be omitted):
+```hcl
+module "apex-cdn" {
+  source = "github.com/nurdsoft/terraform-aws-cloudfront"
+  name   = "nurdsoft.co"
+  tags = {
+    application_name = "nurdsoft"
+    cloud            = "aws"
+    environment      = "dev"
+    region           = "use1"
   }
 }
 ```
 
-`Simple CDN with Custom S3 Bucket Policy`:
-
+`CDN with Custom S3 Bucket Policy`:
 ```hcl
-
 locals {
-  bucket_name = "myapp.nurdsoft.co"
+  bucket_name = "mswp.nurdsoft.co"
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${local.bucket_name}/*",
-    ]
+    actions   = ["s3:ListBucket"]
+    resources = ["arn:aws:s3:::${local.bucket_name}/*"]
   }
 }
 
-module "simple-cdn-with-custom-s3-policy" {
-  source = "../../"
-  name             = local.bucket_name
+module "cdn-with-custom-s3-policy" {
+  source           = "github.com/nurdsoft/terraform-aws-cloudfront"
+  name             = "mswp"
+  zone_name        = "nurdsoft.co"
+  s3_bucket_name   = local.bucket_name
   s3_custom_policy = data.aws_iam_policy_document.bucket_policy.json
   tags = {
+    application_name = "mswp"
     cloud            = "aws"
     environment      = "dev"
     region           = "use1"
-    application_name = "myapp"
   }
 }
 ```
@@ -230,6 +240,7 @@ $ make destroy
 | <a name="input_waf_acl_default_action_type"></a> [waf\_acl\_default\_action\_type](#input\_waf\_acl\_default\_action\_type) | Configuration block with action that you want AWS WAF to take when a request<br>doesn't match the criteria in any of the rules that are associated with the web<br>ACL. | `string` | `"ALLOW"` | no |
 | <a name="input_waf_acl_metric_name"></a> [waf\_acl\_metric\_name](#input\_waf\_acl\_metric\_name) | The name or description for the Amazon CloudWatch metric of this web ACL." | `string` | `"AllowAccessFromEverywhere"` | no |
 | <a name="input_waf_acl_name"></a> [waf\_acl\_name](#input\_waf\_acl\_name) | The name or description of the web ACL. | `string` | `"Allow access from everywhere"` | no |
+| <a name="input_zone_name"></a> [zone\_name](#input\_zone\_name) | The Route 53 hosted zone name (e.g. "nurdsoft.co"). Required when name is a subdomain prefix. When null the module falls back to using name as the zone. | `string` | `null` | no |
 
 ## Outputs
 

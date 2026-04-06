@@ -1,7 +1,8 @@
 module "simple-cdn-with-s3" {
   source = "../../"
   # myapp is merely a placeholder. Replace it with actual name.
-  name = "myapp.nurdsoft.co"
+  name      = "myapp"
+  zone_name = "nurdsoft.co"
   tags = {
     application_name = "myapp"
     owner            = "hello@nurdsoft.co"

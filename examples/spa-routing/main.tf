@@ -18,8 +18,9 @@
 
 module "spa-cdn" {
   source = "../../"
-  # Replace with the actual domain name for your application.
-  name = "myapp.nurdsoft.co"
+  # Replace with the actual names for your application.
+  name      = "myapp"
+  zone_name = "nurdsoft.co"
 
   # Enable the SPA directory-index routing function.
   enable_spa_routing = true

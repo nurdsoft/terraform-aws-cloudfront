@@ -19,24 +19,20 @@ provider "aws" {
 # Locals - define a local variable whose value can be re-used multiple times
 #-------------------------------------------------------------------------------
 locals {
-  # Automatically construct the domain by removing all the characters before the 
-  # first period, including the period itself. E.g. an input of www.foo.com 
-  # gets constructed as foo.com.
-  domain_with_period = replace(var.name, "/^[a-zA-Z]*./", "")
-  # The same as the above w/o a period. E.g. foo.com
-  domain_without_period = replace(var.name, "/^[a-zA-Z]*/", "")
-  # Use the same domain as the distribution. E.g. www.foo.com uses *.foo.com.
-  domain_name = "*.${local.domain_with_period}"
-  name        = var.name
+  # When zone_name is provided, construct the FQDN as name.zone_name
+  # (e.g. name="mswp", zone_name="nurdsoft.co" → "mswp.nurdsoft.co").
+  # When zone_name is omitted, fall back to using name as the full domain
+  # for backward compatibility (e.g. name="nurdsoft.co").
+  fqdn = var.zone_name != null ? "${var.name}.${var.zone_name}" : var.name
+
   # This line now checks if the user provided an alias list.
   # If they did, it uses their list. If not, it creates the default two.
-  aliases               = var.aliases != null ? var.aliases : ["${local.name}", "www.${local.name}"]
+  aliases               = var.aliases != null ? var.aliases : [local.fqdn, "www.${local.fqdn}"]
   bucket                = var.s3_bucket_name
-  name_iam_role         = "${local.name}-role"
-  name_iam_policy_read  = "${local.name}-role-read-policy"
-  name_iam_policy_write = "${local.name}-role-write-policy"
-  sans                  = local.domain_with_period
-  resource_name         = replace(var.name, ".", "-")
+  name_iam_role         = "${local.fqdn}-role"
+  name_iam_policy_read  = "${local.fqdn}-role-read-policy"
+  name_iam_policy_write = "${local.fqdn}-role-write-policy"
+  resource_name         = replace(local.fqdn, ".", "-")
 }
 
 #-------------------------------------------------------------------------------
@@ -81,7 +77,7 @@ resource "aws_cloudfront_function" "spa_routing" {
 # CloudFront Response Headers Policy for Security
 #-------------------------------------------------------------------------------
 resource "aws_cloudfront_response_headers_policy" "x_frame_options_policy" {
-  name = "${replace(local.name, ".", "-")}-x-frame-options-policy"
+  name = "${local.resource_name}-x-frame-options-policy"
 
   security_headers_config {
     frame_options {
@@ -102,7 +98,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
   http_version        = var.http_version
   is_ipv6_enabled     = var.is_ipv6_enabled
   price_class         = var.price_class
-  tags                = merge(var.tags, { "name" = "${local.name}" })
+  tags                = merge(var.tags, { "name" = local.fqdn })
 
   dynamic "logging_config" {
     for_each = length(keys(var.logging_config)) == 0 ? [] : [var.logging_config]
@@ -193,7 +189,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = "${local.name}-origin-access-identity"
+  comment = "${local.fqdn}-origin-access-identity"
 }
 
 #-------------------------------------------------------------------------------
@@ -373,8 +369,8 @@ resource "aws_iam_role_policy_attachment" "cloudfront_write" {
 #-------------------------------------------------------------------------------
 resource "aws_wafv2_web_acl" "cloudfront" {
   provider = aws.east
-  name  = local.resource_name
-  scope = "CLOUDFRONT"
+  name     = local.resource_name
+  scope    = "CLOUDFRONT"
 
   default_action {
     allow {}
@@ -392,7 +388,7 @@ resource "aws_wafv2_web_acl" "cloudfront" {
 #-------------------------------------------------------------------------------
 resource "aws_s3_bucket" "cloudfront" {
   bucket = local.bucket
-  tags   = merge(var.tags, { "name" = "${local.name}" })
+  tags   = merge(var.tags, { "name" = local.fqdn })
 }
 
 resource "aws_s3_bucket_ownership_controls" "cloudfront" {
@@ -411,7 +407,7 @@ resource "aws_s3_bucket_acl" "cloudfront" {
 resource "aws_s3_bucket_policy" "cloudfront" {
   bucket = aws_s3_bucket.cloudfront.id
   # Use the custom policy if provided, otherwise fall back to the default CloudFront policy
-  policy = length(data.aws_iam_policy_document.custom) > 0 ? data.aws_iam_policy_document.custom[0].json : data.aws_iam_policy_document.cloudfront.json 
+  policy = length(data.aws_iam_policy_document.custom) > 0 ? data.aws_iam_policy_document.custom[0].json : data.aws_iam_policy_document.cloudfront.json
 }
 
 resource "aws_s3_bucket_public_access_block" "cloudfront" {
@@ -445,7 +441,7 @@ resource "aws_s3_bucket_cors_configuration" "cloudfront" {
 # Data Source to lookup Zone ID automatically
 
 data "aws_route53_zone" "this" {
-  name         = var.name
+  name         = var.zone_name != null ? var.zone_name : var.name
   private_zone = false
 }
 
@@ -454,14 +450,14 @@ module "acm" {
   version = "~> 4.0"
 
   providers = {
-    aws = aws.east 
+    aws = aws.east
   }
 
-  domain_name = var.name
+  domain_name = local.fqdn
   zone_id     = data.aws_route53_zone.this.zone_id
 
   # Use the aliases calculated in locals as the SANs
-  subject_alternative_names = [for alias in local.aliases : alias if alias != var.name]
+  subject_alternative_names = [for alias in local.aliases : alias if alias != local.fqdn]
 
   validation_method   = "DNS"
   wait_for_validation = true

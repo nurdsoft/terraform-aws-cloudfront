@@ -138,7 +138,12 @@ DESC
 }
 
 variable "name" {
-  description = "The application/website name. E.g., foo in foo.bar.com."
+  description = <<DESC
+The site name. When zone_name is also set this is treated as the subdomain
+prefix (e.g. "mswp") and the FQDN is built as name.zone_name. When zone_name
+is omitted this is used as the full domain (e.g. "nurdsoft.co") for backward
+compatibility.
+DESC
   type        = string
   default     = ""
 }
@@ -390,20 +395,20 @@ variable "s3_cors_rules" {
   description = <<DESC
 CORS Rules to be added on the specific S3 bucket.
 DESC
-  type              = list(object({
+  type = list(object({
     id              = optional(number, null)
     allowed_methods = list(string)
     allowed_origins = list(string)
     allowed_headers = optional(list(string), null)
     expose_headers  = optional(list(string), null)
     max_age_seconds = optional(number, null)
-    
+
   }))
-  default           = []
+  default = []
 }
 
 variable "s3_custom_policy" {
-  description =<<DESC
+  description = <<DESC
 A custom bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide."
 DESC
   type        = string
@@ -413,6 +418,17 @@ DESC
 #-------------------------------------------------------------------------------
 # Route53 Variables
 #-------------------------------------------------------------------------------
+variable "zone_name" {
+  description = <<DESC
+The Route 53 hosted zone name to use for DNS validation and record creation.
+Required when var.name is a subdomain (e.g. mswp.nurdsoft.co) whose hosted
+zone is a parent domain (e.g. nurdsoft.co). When null the module falls back
+to var.name.
+DESC
+  type        = string
+  default     = null
+}
+
 variable "r53_record_ttl" {
   description = <<DESC
 The TTL (time-to-live) of the record in seconds. This is required for non-alias
@@ -462,6 +478,6 @@ directory-style URLs to their index.html equivalents so that static sites
 built with frameworks like Gatsby or Next.js resolve correctly from S3.
 Example: /about/ -> /about/index.html
 DESC
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
 }
