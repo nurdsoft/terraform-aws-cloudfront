@@ -19,7 +19,7 @@ module "subdomain-cdn" {
 }
 # -> FQDN: mswp.nurdsoft.co
 # -> Aliases: mswp.nurdsoft.co, www.mswp.nurdsoft.co
-# -> Route53 A/AAAA records automatically created
+# -> Route53 A records automatically created
 ```
 
 `Apex domain CDN` — when `name` matches the hosted zone (zone_name can be omitted):
@@ -79,12 +79,12 @@ module "cdn-no-dns" {
   }
 }
 # -> CloudFront distribution created with aliases
-# -> No Route53 A/AAAA records created (manage DNS manually)
+# -> No Route53 A records created (manage DNS manually)
 ```
 
 ## Route53 DNS Records
 
-By default, the module automatically creates Route53 A and AAAA alias records for all CloudFront aliases. This means your domain will immediately resolve to the CloudFront distribution after deployment.
+By default, the module automatically creates Route53 A and  alias records for all CloudFront aliases. This means your domain will immediately resolve to the CloudFront distribution after deployment.
 
 - Set `create_route53_records = true` (default) to automatically create DNS records
 - Set `create_route53_records = false` to skip DNS record creation (useful when managing DNS separately or using external DNS providers)
@@ -252,7 +252,7 @@ $ make destroy
 | <a name="input_policy"></a> [policy](#input\_policy) | (Optional) A valid list of bucket policy JSON document. Note that if the policy document is not specific enough (but still valid), Terraform may view the policy as constantly changing in a terraform plan. In this case, please make sure you use the verbose/specific version of the policy. For more information about building AWS IAM policy documents with Terraform, see the AWS IAM Policy Document Guide. | `list(string)` | `[]` | no |
 | <a name="input_price_class"></a> [price\_class](#input\_price\_class) | The price class for this distribution. Options: PriceClass\_All, PriceClass\_200,<br>PriceClass\_100. | `string` | `"PriceClass_All"` | no |
 | <a name="input_r53_record_ttl"></a> [r53\_record\_ttl](#input\_r53\_record\_ttl) | The TTL (time-to-live) of the record in seconds. This is required for non-alias<br>records. | `number` | `60` | no |
-| <a name="input_r53_record_type"></a> [r53\_record\_type](#input\_r53\_record\_type) | The record type. Valid values are A, AAAA, CAA, CNAME, DS, MX, NAPTR, NS, PTR, <br>SOA, SPF, SRV and TXT. | `string` | `"CNAME"` | no |
+| <a name="input_r53_record_type"></a> [r53\_record\_type](#input\_r53\_record\_type) | The record type. Valid values are A, CAA, CNAME, DS, MX, NAPTR, NS, PTR, <br>SOA, SPF, SRV and TXT. | `string` | `"CNAME"` | no |
 | <a name="input_r53_zone_private"></a> [r53\_zone\_private](#input\_r53\_zone\_private) | Whether the Route53 zone is private. | `bool` | `false` | no |
 | <a name="input_region"></a> [region](#input\_region) | The AWS region in which services are provisioned. | `string` | `"us-east-1"` | no |
 | <a name="input_restrict_public_buckets"></a> [restrict\_public\_buckets](#input\_restrict\_public\_buckets) | Whether Amazon S3 should restrict public bucket policies for this bucket. <br>Enabling this setting does not affect the previously stored bucket policy, <br>except that public and cross-account access within the public bucket policy, <br>including non-public delegation to specific accounts, is blocked. When set to <br>true:<br>Only the bucket owner and AWS Services can access this buckets if it has a <br>public policy. | `bool` | `true` | no |
