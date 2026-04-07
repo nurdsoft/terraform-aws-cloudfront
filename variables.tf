@@ -429,6 +429,15 @@ DESC
   default     = null
 }
 
+variable "create_route53_records" {
+  description = <<DESC
+Whether to create Route53 A and AAAA alias records pointing to the CloudFront
+distribution. Set to true to automatically create DNS records for all aliases.
+DESC
+  type        = bool
+  default     = true
+}
+
 variable "r53_record_ttl" {
   description = <<DESC
 The TTL (time-to-live) of the record in seconds. This is required for non-alias

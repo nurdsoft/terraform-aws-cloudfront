@@ -8,6 +8,11 @@ output "cdn_id" {
   value       = aws_cloudfront_distribution.cloudfront.id
 }
 
+output "cdn_hosted_zone_id" {
+  description = "The CloudFront distribution hosted zone ID for Route53 alias records."
+  value       = aws_cloudfront_distribution.cloudfront.hosted_zone_id
+}
+
 output "s3_origin_bucket" {
   description = "The origin bucket Cloudfront will use to get the content."
   value       = aws_s3_bucket.cloudfront.id
@@ -29,4 +34,9 @@ output "cicd_role_arn" {
 output "spa_routing_function_arn" {
   description = "The ARN of the SPA routing CloudFront Function. Empty string when enable_spa_routing is false."
   value       = var.enable_spa_routing ? aws_cloudfront_function.spa_routing[0].arn : ""
+}
+
+output "route53_fqdn" {
+  description = "The FQDN of the Route53 record created for the CloudFront distribution."
+  value       = var.create_route53_records ? local.fqdn : null
 }

@@ -464,3 +464,20 @@ module "acm" {
 
   tags = var.tags
 }
+
+#-------------------------------------------------------------------------------
+# Route53 Record: Subdomain → CloudFront
+#-------------------------------------------------------------------------------
+resource "aws_route53_record" "app" {
+  count = var.create_route53_records ? 1 : 0
+
+  zone_id = data.aws_route53_zone.this.zone_id
+  name    = local.fqdn
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.cloudfront.domain_name
+    zone_id                = aws_cloudfront_distribution.cloudfront.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
