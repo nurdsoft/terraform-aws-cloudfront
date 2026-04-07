@@ -19,6 +19,7 @@ module "subdomain-cdn" {
 }
 # -> FQDN: mswp.nurdsoft.co
 # -> Aliases: mswp.nurdsoft.co, www.mswp.nurdsoft.co
+# -> Route53 A/AAAA records automatically created
 ```
 
 `Apex domain CDN` — when `name` matches the hosted zone (zone_name can be omitted):
@@ -62,6 +63,31 @@ module "cdn-with-custom-s3-policy" {
   }
 }
 ```
+
+`CDN without Route53 Records` — useful when managing DNS separately:
+```hcl
+module "cdn-no-dns" {
+  source                 = "github.com/nurdsoft/terraform-aws-cloudfront"
+  name                   = "mswp"
+  zone_name              = "nurdsoft.co"
+  create_route53_records = false  # Disable automatic DNS record creation
+  tags = {
+    application_name = "mswp"
+    cloud            = "aws"
+    environment      = "dev"
+    region           = "use1"
+  }
+}
+# -> CloudFront distribution created with aliases
+# -> No Route53 A/AAAA records created (manage DNS manually)
+```
+
+## Route53 DNS Records
+
+By default, the module automatically creates Route53 A and AAAA alias records for all CloudFront aliases. This means your domain will immediately resolve to the CloudFront distribution after deployment.
+
+- Set `create_route53_records = true` (default) to automatically create DNS records
+- Set `create_route53_records = false` to skip DNS record creation (useful when managing DNS separately or using external DNS providers)
 
 ## Assumptions
 
