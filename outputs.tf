@@ -40,3 +40,13 @@ output "route53_fqdn" {
   description = "The FQDN of the Route53 record created for the CloudFront distribution."
   value       = var.create_route53_records ? local.fqdn : null
 }
+
+output "iam_policy_read_arn" {
+  description = "The ARN of the IAM read policy for S3 and CloudFront access."
+  value       = aws_iam_policy.cloudfront_read.arn
+}
+
+output "iam_policy_write_arn" {
+  description = "The ARN of the IAM write policy for S3 and CloudFront access."
+  value       = aws_iam_policy.cloudfront_write.arn
+}
